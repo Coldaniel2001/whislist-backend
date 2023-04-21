@@ -32,10 +32,28 @@ const updateDoneTodos = async (req, res) => {
     if (!id) res.status(400).send()
 
     try {
-       const todo = await TodosModels.findById(id)
-       todo.done = done
+        const todo = await TodosModels.findById(id)
+        todo.done = done
 
-       await todo.save()
+        await todo.save()
+
+        res.status(200).send({ status: 'OK' })
+    } catch {
+        res.status(500).send({ status: 'FALSE' })
+    }
+}
+
+const updateTodos = async (req, res) => {
+    const { text } = req.body
+    const { id } = req.params
+
+    if (!id) res.status(400).send()
+
+    try {
+        const todo = await TodosModels.findById(id)
+        todo.text = text
+
+        await todo.save()
 
         res.status(200).send({ status: 'OK' })
     } catch {
@@ -60,5 +78,6 @@ module.exports = {
     getAllTodos,
     deleteOneTodos,
     createTodos,
-    updateDoneTodos
+    updateDoneTodos,
+    updateTodos
 }

@@ -7,8 +7,8 @@ const router = express.Router()
 
 router.get("/",  todosControllers.getAllTodos)
 router.post("/",  todosControllers.createTodos)
-router.put("/:id", todosControllers.updateDoneTodos)
+router.put("/done:id", todosControllers.updateDoneTodos)
+router.put("/:id", todosControllers.updateTodos)
 router.delete("/:id",  todosControllers.deleteOneTodos)
 
-
-module.exports = router;        
+module.exports = router;
