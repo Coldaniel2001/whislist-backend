@@ -1,24 +1,21 @@
 const TodosModels = require('../models/todos.models')
+const UsersModels = require('../models/users.models')
 
-const getAllTodos = async (req, res) => {
-
-    try {
-        const allTodos = await TodosModels.find({})
-        res.status(200).send({ status: 'OK', allTodos })
-    } catch (error) {
-        res.status(500).send({ status: 'FALSE' })
-    }
-}
 
 const createTodos = async (req, res) => {
     const { text, done } = req.body
+    const { userId } = req.params
     // if (!text || !done) res.status(400).send()
-
     try {
         const createTodos = await TodosModels.create({
             text,
             done
         })
+        const user = await UsersModels.findById(userId)
+
+        user.todos.push(createTodos._id)
+        await user.save()
+
         res.status(200).send({ status: 'OK', createTodos })
     } catch {
         res.status(500).send({ status: 'FALSE' })
@@ -55,7 +52,7 @@ const updateTodos = async (req, res) => {
 
         await todo.save()
 
-        res.status(200).send({ status: 'OK' })
+        res.status(200).send({ status: 'OK', todo })
     } catch {
         res.status(500).send({ status: 'FALSE' })
     }
@@ -74,10 +71,35 @@ const deleteOneTodos = async (req, res) => {
     }
 }
 
+const deleteCompleted = async (req, res) => {
+
+    try {
+        // const deleteTodos = await TodosModels.findOneAndDelete({ _id: id })
+        const findTodos = await TodosModels.deleteMany({done:true})
+        
+        res.status(200).send({ status: 'OK', msg: `Deleted completed todos` })
+    } catch (error) {
+        res.status(500).send({ status: 'FALSE' })
+    }
+}
+
+const getTodosOfUser = async (req, res) => {
+
+    const { userId } = req.params
+
+    try {
+        const user = await UsersModels.findById(userId).populate("todos")
+        res.status(200).send({ status: 'OK', user })
+    } catch (error) {
+        res.status(500).send({ status: 'FALSE' })
+    }
+}
+
 module.exports = {
-    getAllTodos,
     deleteOneTodos,
+    deleteCompleted,
     createTodos,
     updateDoneTodos,
-    updateTodos
+    updateTodos,
+    getTodosOfUser
 }

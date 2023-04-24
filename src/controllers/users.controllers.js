@@ -1,4 +1,5 @@
 const UsersModels = require("../models/users.models")
+const { encrypt, compare } = require('../encrypt/handleBcrypt')
 
 const getUsers = async (req, res) => {
     try {
@@ -12,10 +13,11 @@ const getUsers = async (req, res) => {
 const createUsers = async (req, res) => {
     const { name, gmail, password } = req.body
     try {
+        const passwordHash = await encrypt(password)
         const createUsers = await UsersModels.create({
             name,
             gmail,
-            password
+            password: passwordHash
         })
         res.status(200).send({ status: 'OK', createUsers })
     } catch {
@@ -23,4 +25,22 @@ const createUsers = async (req, res) => {
     }
 }
 
-module.exports = { createUsers, getUsers }
+const verifyPasswod = async (req, res) => {
+    const { gmail, password } = req.body;
+    try {
+        const user = await UsersModels.findOne({ gmail })
+
+        if (!user) {
+            res.status(200).send({ status: 'NOT FOUND', user })
+        }else{
+            const checkPassword = await compare(password, user.password)
+            if (checkPassword) {
+                res.status(200).send({ status: 'OK', user })
+            }
+        }
+    } catch (error) {
+        res.status(500).send({ status: 'FALSE' })
+    }
+}
+
+module.exports = { createUsers, getUsers, verifyPasswod }
