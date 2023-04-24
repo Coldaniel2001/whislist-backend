@@ -60,11 +60,15 @@ const updateTodos = async (req, res) => {
 
 const deleteOneTodos = async (req, res) => {
     const { id } = req.params
+    const { userId } = req.body
 
     if (!id) res.status(400).send()
 
     try {
         const deleteTodos = await TodosModels.findOneAndDelete({ _id: id })
+        const user = await UsersModels.findById(userId)
+        user.todos.pull(id)
+        await user.save()
         res.status(200).send({ status: 'OK', msg: `Deleted album with id ${id}` })
     } catch (error) {
         res.status(500).send({ status: 'FALSE' })
@@ -74,9 +78,8 @@ const deleteOneTodos = async (req, res) => {
 const deleteCompleted = async (req, res) => {
 
     try {
-        // const deleteTodos = await TodosModels.findOneAndDelete({ _id: id })
-        const findTodos = await TodosModels.deleteMany({done:true})
-        
+        const findTodos = await TodosModels.deleteMany({ done: true })
+
         res.status(200).send({ status: 'OK', msg: `Deleted completed todos` })
     } catch (error) {
         res.status(500).send({ status: 'FALSE' })
@@ -101,5 +104,5 @@ module.exports = {
     createTodos,
     updateDoneTodos,
     updateTodos,
-    getTodosOfUser
+    getTodosOfUser,
 }

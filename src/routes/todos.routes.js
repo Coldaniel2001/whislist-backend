@@ -1,6 +1,7 @@
 const express = require('express');
 
 const todosControllers = require("../controllers/todos.controllers")
+const {deleteTodosOfUser} = require("../controllers/todos.controllers")
 
 const router = express.Router()
 
